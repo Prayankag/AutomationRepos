@@ -8,7 +8,7 @@ on:
       - 'calculator/**'  ## Trigger build on changes to the calculator folder
   workflow_dispatch:
     inputs:
-      app-name:
+      appname:
         description: 'The Azure Web App name for deployment'
         required: true
         type: string
@@ -91,13 +91,13 @@ jobs:
       - name: Deploy to Dev Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ github.event.inputs.app-name || secrets.AZURE_WEBAPP_NAME_DEV }}  # Use manual input or fall back to secret
+          appname: ${{ github.event.inputs.appname || secrets.AZURE_WEBAPP_NAME_DEV }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Dev Deployment
         id: validate-dev
         run: |
-          curl -s --head --request GET https://${{ github.event.inputs.app-name || secrets.AZURE_WEBAPP_NAME_DEV }}.azurewebsites.net/ || exit 1
+          curl -s --head --request GET https://${{ github.event.inputs.appname || secrets.AZURE_WEBAPP_NAME_DEV }}.azurewebsites.net/ || exit 1
 
       - name: Rollback to Previous Version (if deployment fails)
         if: ${{ failure() }}
@@ -105,7 +105,7 @@ jobs:
           echo "Deployment failed. Rolling back to the previous version."
           # Slot-based rollback: Swap back to the previous version by swapping slots (staging -> production)
           az webapp deployment slot swap \
-            --name ${{ github.event.inputs.app-name || secrets.AZURE_WEBAPP_NAME_DEV }} \
+            --name ${{ github.event.inputs.appname || secrets.AZURE_WEBAPP_NAME_DEV }} \
             --slot staging --target-slot production
           echo "Rollback completed."
 
@@ -142,7 +142,7 @@ jobs:
       - name: Deploy to Staging Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_STAGING_WEBAPP_NAME }}  # Use manual input or fall back to secret
+          appname: ${{ secrets.AZURE_STAGING_WEBAPP_NAME }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Staging Deployment
@@ -193,7 +193,7 @@ jobs:
       - name: Deploy to Production Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_PRODUCTION_WEBAPP_NAME }}  # Use manual input or fall back to secret
+          appname: ${{ secrets.AZURE_PRODUCTION_WEBAPP_NAME }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Production Deployment
