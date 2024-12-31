@@ -81,7 +81,7 @@ jobs:
         id: deploy-to-webapp-dev
         uses: azure/webapps-deploy@v3
         with:
-          appname: ${{ github.event.inputs.appname }}
+          app-name: ${{ github.event.inputs.appname }}
           slot-name: 'Production'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_33ac0071b75a41149831c060e302057b }}
@@ -119,7 +119,7 @@ jobs:
         id: deploy-to-webapp-staging
         uses: azure/webapps-deploy@v3
         with:
-          appname: ${{ github.event.inputs.appname }}-staging
+          app-name: ${{ github.event.inputs.appname }}-staging
           slot-name: 'Staging'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_a924dda677174242986fe24120677f9c }}
@@ -157,7 +157,7 @@ jobs:
         id: deploy-to-webapp-production
         uses: azure/webapps-deploy@v3
         with:
-          appname: ${{ github.event.inputs.appname }}-prod
+          app-name: ${{ github.event.inputs.appname }}-prod
           slot-name: 'Production'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_a924dda677174242986fe24120677f9c }}
