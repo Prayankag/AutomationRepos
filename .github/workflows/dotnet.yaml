@@ -91,7 +91,7 @@ jobs:
       - name: Deploy to Dev Web App
         uses: azure/webapps-deploy@v2
         with:
-          appname: ${{ github.event.inputs.appname || secrets.AZURE_WEBAPP_NAME_DEV }}  # Use manual input or fall back to secret
+          app-name: ${{ github.event.inputs.appname || secrets.AZURE_WEBAPP_NAME_DEV }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Dev Deployment
@@ -142,7 +142,7 @@ jobs:
       - name: Deploy to Staging Web App
         uses: azure/webapps-deploy@v2
         with:
-          appname: ${{ secrets.AZURE_STAGING_WEBAPP_NAME }}  # Use manual input or fall back to secret
+          app-name: ${{ secrets.AZURE_STAGING_WEBAPP_NAME }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Staging Deployment
@@ -193,7 +193,7 @@ jobs:
       - name: Deploy to Production Web App
         uses: azure/webapps-deploy@v2
         with:
-          appname: ${{ secrets.AZURE_PRODUCTION_WEBAPP_NAME }}  # Use manual input or fall back to secret
+          app-name: ${{ secrets.AZURE_PRODUCTION_WEBAPP_NAME }}  # Use manual input or fall back to secret
           package: ./drop.zip  # Correct path to the downloaded zip file
 
       - name: Validate Production Deployment
