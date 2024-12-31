@@ -8,7 +8,7 @@ on:
       - 'springboot/**'    # Monitor changes in 'springboot' folder
   workflow_dispatch:
     inputs:
-      app-name:
+      appname:
         description: 'The Azure Web App name for deployment'
         required: true
         type: string
@@ -81,20 +81,20 @@ jobs:
         id: deploy-to-webapp-dev
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ github.event.inputs.app-name }}
+          appname: ${{ github.event.inputs.appname }}
           slot-name: 'Production'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_33ac0071b75a41149831c060e302057b }}
 
       - name: Validate Deployment (Dev)
         run: |
-          curl -s --head --request GET https://${{ github.event.inputs.app-name }}.azurewebsites.net/ || exit 1
+          curl -s --head --request GET https://${{ github.event.inputs.appname }}.azurewebsites.net/ || exit 1
 
       - name: Rollback in case of failure (Dev)
         if: failure()
         run: |
           echo "Rolling back to the previous version in Development slot."
-          az webapp deployment slot swap --name ${{ github.event.inputs.app-name }} --slot Production --target-slot Development --resource-group <your-resource-group>
+          az webapp deployment slot swap --name ${{ github.event.inputs.appname }} --slot Production --target-slot Development --resource-group <your-resource-group>
 
   deploy-springboot-app-staging:
     runs-on: ubuntu-latest
@@ -119,20 +119,20 @@ jobs:
         id: deploy-to-webapp-staging
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ github.event.inputs.app-name }}-staging
+          appname: ${{ github.event.inputs.appname }}-staging
           slot-name: 'Staging'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_a924dda677174242986fe24120677f9c }}
 
       - name: Validate Deployment (Staging)
         run: |
-          curl -s --head --request GET https://$${{ github.event.inputs.app-name }}-staging.azurewebsites.net/ || exit 1
+          curl -s --head --request GET https://$${{ github.event.inputs.appname }}-staging.azurewebsites.net/ || exit 1
 
       - name: Rollback in case of failure (Staging)
         if: failure()
         run: |
           echo "Rolling back to the previous version in Staging slot."
-          az webapp deployment slot swap --name ${{ github.event.inputs.app-name }} --slot Staging --target-slot Production --resource-group <your-resource-group>
+          az webapp deployment slot swap --name ${{ github.event.inputs.appname }} --slot Staging --target-slot Production --resource-group <your-resource-group>
 
   deploy-springboot-app-production:
     runs-on: ubuntu-latest
@@ -157,17 +157,17 @@ jobs:
         id: deploy-to-webapp-production
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ github.event.inputs.app-name }}-prod
+          appname: ${{ github.event.inputs.appname }}-prod
           slot-name: 'Production'
           package: '*.jar'  # Path to the generated JAR file
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_a924dda677174242986fe24120677f9c }}
 
       - name: Validate Deployment (Production)
         run: |
-          curl -s --head --request GET https://$${{ github.event.inputs.app-name }}-prod.azurewebsites.net/ || exit 1
+          curl -s --head --request GET https://$${{ github.event.inputs.appname }}-prod.azurewebsites.net/ || exit 1
 
       - name: Rollback in case of failure (Production)
         if: failure()
         run: |
           echo "Rolling back to the previous version in Production slot."
-          az webapp deployment slot swap --name ${{ github.event.inputs.app-name }} --slot Production --target-slot Development --resource-group <your-resource-group>
+          az webapp deployment slot swap --name ${{ github.event.inputs.appname }} --slot Production --target-slot Development --resource-group <your-resource-group>
