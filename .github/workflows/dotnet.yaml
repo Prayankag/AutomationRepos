@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'calculator/**'  ## Trigger build on changes to the calculator folder
+      - 'calculator/**'  ### Trigger build on changes to the calculator folder
   workflow_dispatch:
     inputs:
       appname:
