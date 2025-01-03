@@ -93,23 +93,17 @@ jobs:
             echo "Listing contents of the current directory:"
             ls -l
       
-            # Change to the correct directory (AutomationRepos without the extra "AutomationRepos")
-            cd AutomationRepos
-            echo "Current directory:"
-            pwd
-            # Create the calculator folder in the target repo if it doesn't exist
-            mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
+            # Ensure you're in the correct directory (AutomationRepos is already included in GITHUB_WORKSPACE)
+            cd $GITHUB_WORKSPACE  # No need to go into AutomationRepos again since it's already in the path
       
-            # Check if the calculator folder exists and list its contents
-            echo "Listing contents of the calculator folder (before copy):"
-            if [ -d "calculator" ]; then
-              ls -l calculator
+            # Check if the calculator folder exists in the correct path and list its contents
+            if [ -d "./calculator" ]; then
+              echo "Listing contents of the calculator folder (before copy):"
+              ls -l ./calculator
+              cp -r ./calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
             else
-              echo "calculator folder does not exist, skipping listing."
+              echo "calculator folder does not exist in the expected location. Skipping copy."
             fi
-      
-            # Copy the calculator folder's contents to the target repo
-            cp -r calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
       
             # Check if calculator.sln file exists in AutomationRepos root and copy it
             if [ -f "./calculator.sln" ]; then
@@ -122,7 +116,7 @@ jobs:
           elif [ "${{ github.event.inputs.applicationtype }}" == "springboot" ]; then
             echo "Copying Spring Boot code to the app repo."
             # Change to the correct directory (AutomationRepos without the extra "AutomationRepos")
-            cd $GITHUB_WORKSPACE
+            cd $GITHUB_WORKSPACE  # No need to change directory here either
       
             # Create the springboot folder if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/springboot
@@ -132,14 +126,13 @@ jobs:
           elif [ "${{ github.event.inputs.applicationtype }}" == "terraform" ]; then
             echo "Copying Terraform code to the app repo."
             # Change to the correct directory (AutomationRepos without the extra "AutomationRepos")
-            cd $GITHUB_WORKSPACE
+            cd $GITHUB_WORKSPACE  # No need to change directory here either
       
             # Create the terraform folder if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/terraform
             # Copy the Terraform code from AutomationRepos to the target repo
             cp -r ./terraform/* ${{ github.event.inputs.targetrepo }}/terraform/
-          fi
-          
+          fi      
       - name: Trigger pipeline in the application repo
         run: |
           echo "Triggering workflow in target application repo."
