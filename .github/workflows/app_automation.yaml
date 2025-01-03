@@ -87,7 +87,8 @@ jobs:
             # Create the calculator folder in the target repo if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
             # Copy the .NET code from AutomationRepos to the target repo
-            cp -r ./calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
+            ls -l
+            cp -r calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
             
             # Check if calculator.sln file exists in AutomationRepos root and copy it
             if [ -f "./calculator.sln" ]; then
