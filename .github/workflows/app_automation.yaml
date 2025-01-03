@@ -84,11 +84,21 @@ jobs:
           # Ensure the folder path is created in the target repository
           if [ "${{ github.event.inputs.applicationtype }}" == "dotnet" ]; then
             echo "Copying .NET (calculator) code to the app repo."
+            # Debug: Check the current working directory
+            echo "Current directory:"
+            pwd
+          
+            # Debug: List contents of the current directory
+            echo "Listing contents of the current directory:"
+            ls -l
+          
             # Create the calculator folder in the target repo if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
-            # Copy the .NET code from AutomationRepos to the target repo
-            ls -l
-            cp -r calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
+          
+            # Check if the calculator folder exists and list its contents
+            echo "Listing contents of the calculator folder (before copy):"
+            ls -l calculator
+            cp -r .calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
             
             # Check if calculator.sln file exists in AutomationRepos root and copy it
             if [ -f "./calculator.sln" ]; then
