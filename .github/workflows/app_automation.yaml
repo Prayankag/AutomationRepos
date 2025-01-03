@@ -59,7 +59,7 @@ jobs:
 
       - name: Check if the required YAML file exists in the automation repo
         run: |
-          echo "Checking for ${github.event.inputs.applicationtype}.yaml"
+          echo "Checking for ${{ github.event.inputs.applicationtype }}.yaml"
           if [ ! -f ".github/workflows/${{ github.event.inputs.applicationtype }}.yaml" ]; then
             echo "Error: ${{ github.event.inputs.applicationtype }}.yaml does not exist in the automation repo!"
             exit 1
