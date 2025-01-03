@@ -95,7 +95,8 @@ jobs:
       
             # Change to the correct directory (AutomationRepos without the extra "AutomationRepos")
             cd $GITHUB_WORKSPACE
-      
+            echo "Current directory:"
+            pwd
             # Create the calculator folder in the target repo if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
       
