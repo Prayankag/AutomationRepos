@@ -84,34 +84,34 @@ jobs:
           # Ensure the folder path is created in the target repository
           if [ "${{ github.event.inputs.applicationtype }}" == "dotnet" ]; then
             echo "Copying .NET (calculator) code to the app repo."
-            # Create the calculator folder if it doesn't exist
+            # Create the calculator folder in the target repo if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
             # Copy the .NET code from AutomationRepos to the target repo
-            cp -r $GITHUB_WORKSPACE/calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
+            cp -r $GITHUB_WORKSPACE/AutomationRepos/calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
         
             # Check if calculator.sln file exists in AutomationRepos root and copy it
-            if [ -f "$GITHUB_WORKSPACE/calculator.sln" ]; then
+            if [ -f "$GITHUB_WORKSPACE/AutomationRepos/calculator.sln" ]; then
               echo "calculator.sln file exists, copying to app repo."
-              cp $GITHUB_WORKSPACE/calculator.sln ${{ github.event.inputs.targetrepo }}/calculator.sln
+              cp $GITHUB_WORKSPACE/AutomationRepos/calculator.sln ${{ github.event.inputs.targetrepo }}/calculator.sln
             else
               echo "calculator.sln file does not exist, skipping copy."
             fi
-          
+      
           elif [ "${{ github.event.inputs.applicationtype }}" == "springboot" ]; then
             echo "Copying Spring Boot code to the app repo."
             # Create the springboot folder if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/springboot
             # Copy the Spring Boot code from AutomationRepos to the target repo
-            cp -r $GITHUB_WORKSPACE/springboot/* ${{ github.event.inputs.targetrepo }}/springboot/
-        
+            cp -r $GITHUB_WORKSPACE/AutomationRepos/springboot/* ${{ github.event.inputs.targetrepo }}/springboot/
+      
           elif [ "${{ github.event.inputs.applicationtype }}" == "terraform" ]; then
             echo "Copying Terraform code to the app repo."
             # Create the terraform folder if it doesn't exist
             mkdir -p ${{ github.event.inputs.targetrepo }}/terraform
             # Copy the Terraform code from AutomationRepos to the target repo
-            cp -r $GITHUB_WORKSPACE/terraform/* ${{ github.event.inputs.targetrepo }}/terraform/
+            cp -r $GITHUB_WORKSPACE/AutomationRepos/terraform/* ${{ github.event.inputs.targetrepo }}/terraform/
           fi
-
+          
       - name: Trigger pipeline in the application repo
         run: |
           echo "Triggering workflow in target application repo."
