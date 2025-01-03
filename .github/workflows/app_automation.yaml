@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       orgname:
-        description: 'The name of the organisation repository'
+        description: 'The name of the organization repository'
         required: true
         type: string
       targetrepo:
@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       applicationtype:
-        description: 'The Application type for deployment'
+        description: 'The Application type for deployment (dotnet, springboot, terraform)'
         required: true
         type: string
       appname:
@@ -28,22 +28,22 @@ jobs:
       - name: Checkout AutomationRepos
         uses: actions/checkout@v2
         with:
-          repository: ${{ github.event.inputs.orgname }}/AutomationRepos  # Replace with your automation repo name
-          token: ${{ secrets.GIT_PAT }}  # Use Personal Access Token (PAT) if repository is private
-          ref: main  # Make sure the main branch is specified or change if needed
+          repository: ${{ github.event.inputs.orgname }}/AutomationRepos
+          token: ${{ secrets.GIT_PAT }}  # Personal Access Token (PAT)
+          ref: main
 
       - name: List files in the automation repo after checkout
         run: |
           echo "Listing files in the automation repo"
           ls -R .  # List all files in the current directory (root of the checked-out repo)
 
-      - name: Checkout app repo (app repo)
+      - name: Checkout app repo (target repo)
         uses: actions/checkout@v2
         with:
           repository: ${{ github.event.inputs.orgname }}/${{ github.event.inputs.targetrepo }}  # Use the target repository name from input
-          token: ${{ secrets.GIT_PAT }}  # Use Personal Access Token (PAT) if repository is private
+          token: ${{ secrets.GIT_PAT }}
           path: ${{ github.event.inputs.targetrepo }}  # Checkout app repo in a separate directory
-          ref: main  # Make sure the main branch is specified or change if needed
+          ref: main  # Use the main branch (or adjust if necessary)
 
       - name: List files in the app repo's workflows directory
         run: |
@@ -52,49 +52,60 @@ jobs:
 
       - name: Create .github/workflows directory in app repo if it doesn't exist
         run: |
-          # Check if the .github/workflows directory exists in the app repo
           if [ ! -d "${{ github.event.inputs.targetrepo }}/.github/workflows" ]; then
-            echo "Directory .github/workflows does not exist. Creating directory."
+            echo "Creating .github/workflows directory."
             mkdir -p ${{ github.event.inputs.targetrepo }}/.github/workflows
-          else
-            echo "Directory .github/workflows already exists."
           fi
 
-      - name: Check if the file exists in the automation repo
+      - name: Check if the required YAML file exists in the automation repo
         run: |
-          # Check if the file with .yaml extension exists in the automation repo
-          echo "Checking if ${{ github.event.inputs.applicationtype }}.yaml exists in the automation repo."
-          
-          if [ -f ".github/workflows/${{ github.event.inputs.applicationtype }}.yaml" ]; then
-            echo "File exists in the automation repo. Copying the ${{ github.event.inputs.applicationtype }}.yaml to the app repo."
-          else
-            echo "File does not exist in the automation repo. Cannot copy."
+          echo "Checking for ${github.event.inputs.applicationtype}.yaml"
+          if [ ! -f ".github/workflows/${{ github.event.inputs.applicationtype }}.yaml" ]; then
+            echo "Error: ${{ github.event.inputs.applicationtype }}.yaml does not exist in the automation repo!"
             exit 1
           fi
 
-      - name: Copy ${{ github.event.inputs.applicationtype }}.yaml to app repo
+      - name: Copy the application workflow YAML file to app repo
         run: |
-          echo "Copying ${{ github.event.inputs.applicationtype }}.yaml from automation repo to app repo."
-          cp .github/workflows/${{ github.event.inputs.applicationtype }}.yaml ${{ github.event.inputs.targetrepo }}/.github/workflows/${{ github.event.inputs.applicationtype }}.yaml
-
-          # Check if there are any changes in the repo before committing
+          echo "Copying the application workflow YAML to the app repo."
+          cp .github/workflows/${{ github.event.inputs.applicationtype }}.yaml ${{ github.event.inputs.targetrepo }}/.github/workflows/
           git diff --exit-code || echo "Changes detected, committing."
-
-          # Change directory to the app repo and commit changes if needed
+          
           cd ${{ github.event.inputs.targetrepo }}
           git config --global user.email "naresh.reddivari@valuemomentum.com"
           git config --global user.name "nareshreddivari"
           git add .github/workflows/${{ github.event.inputs.applicationtype }}.yaml
           
-          # Only commit if there are changes
-          git diff --cached --quiet || git commit -m "Added ${{ github.event.inputs.applicationtype }}.yaml from automation repo"
-          
-          # Push changes to the repository
+          git diff --cached --quiet || git commit -m "Added ${github.event.inputs.applicationtype}.yaml from automation repo"
           git push origin main || echo "No changes to push."
 
-      - name: Create pipeline in application repo
+      - name: Copy application code to the app repo (based on application type)
         run: |
-          # Trigger the workflow in the application repo
+          # Determine the folder path based on application type
+          if [ "${{ github.event.inputs.applicationtype }}" == "dotnet" ]; then
+            echo "Copying .NET (calculator) code to the app repo."
+            # Create the calculator folder if it doesn't exist
+            mkdir -p ${{ github.event.inputs.targetrepo }}/calculator
+            # Copy the .NET code from AutomationRepos to the target repo
+            cp -r ../calculator/* ${{ github.event.inputs.targetrepo }}/calculator/
+        
+          elif [ "${{ github.event.inputs.applicationtype }}" == "springboot" ]; then
+            echo "Copying Spring Boot code to the app repo."
+            # Create the springboot folder if it doesn't exist
+            mkdir -p ${{ github.event.inputs.targetrepo }}/springboot
+            # Copy the Spring Boot code from AutomationRepos to the target repo
+            cp -r ../springboot/* ${{ github.event.inputs.targetrepo }}/springboot/
+        
+          elif [ "${{ github.event.inputs.applicationtype }}" == "terraform" ]; then
+            echo "Copying Terraform code to the app repo."
+            # Create the terraform folder if it doesn't exist
+            mkdir -p ${{ github.event.inputs.targetrepo }}/terraform
+            # Copy the Terraform code from AutomationRepos to the target repo
+            cp -r ../terraform/* ${{ github.event.inputs.targetrepo }}/terraform/
+          fi
+
+      - name: Trigger pipeline in the application repo
+        run: |
           echo "Triggering workflow in target application repo."
           curl -X POST \
             https://api.github.com/repos/${{ github.event.inputs.orgname }}/${{ github.event.inputs.targetrepo }}/actions/workflows/${{ github.event.inputs.applicationtype }}.yaml/dispatches \
